@@ -20,4 +20,9 @@ Three 3D models are randomly sampled from the dummy dataset and rendered in a ba
 
 If everything went fine, you should see the rendering output for the 3D models sampled. Something like this:
 
+<p align="center">
+ <img src="./img/output.png" alt="render_output" width="33%" height="33%">
+ <br>Output with resolution=(128, 128)
+</p>
+
 
