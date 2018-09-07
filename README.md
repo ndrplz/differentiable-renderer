@@ -47,4 +47,18 @@ If everything went fine, you should see the rendering output for the 3D models s
  <br>Output with resolution=(128, 128)
 </p>
 
+#### Moving the camera in the 3D world
+
+There is a class `RotoTranslation` which encapsulates the camera matrix, providing an easy way to change the camera location while always mantaining a geometrically consistent pose.
+
+The initial camera pose is set as:
+```
+camera_pose = RotoTranslation(rotation=Vector(x=90., y=0., z=0.),
+                              translation=Vector(x=0., y=-8., z=0.),
+                              angle_unit='degrees')
+```
+To change its position, simply use its setters:
+* `alpha_x`, `alpha_y`, `alpha_z` to change the rotation angle around respective axes
+* `t_x`, `t_y`, `t_z` to change the translation along respective axes
+
 
