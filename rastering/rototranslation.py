@@ -112,7 +112,6 @@ class RotoTranslation:
 
     @alpha_x.setter
     def alpha_x(self, value):
-
         if self.angle_unit == 'degrees':
             value = np.radians(value)
 
