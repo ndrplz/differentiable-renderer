@@ -49,7 +49,7 @@ If everything went fine, you should see the rendering output for the 3D models s
 
 #### Moving the camera in the 3D world
 
-There is a class `RotoTranslation` which encapsulates the camera matrix, providing an easy way to change the camera location while always mantaining a geometrically consistent pose.
+There is a class [`RotoTranslation`](./rastering/rototranslation.py) which encapsulates the camera matrix, providing an easy way to change the camera location while always mantaining a geometrically consistent pose.
 
 The initial camera pose is set as:
 ```
