@@ -4,8 +4,8 @@ Rasterer class implement a differentiable rasterer.
 import numpy as np
 import tensorflow as tf
 
-from rasterer.utils import calibration_matrix
-from rasterer.utils import project_in_2D
+from rastering.utils import calibration_matrix
+from rastering.utils import project_in_2D
 
 
 def keep_top_n(meshes, top_n):
