@@ -1,4 +1,4 @@
-# tensorflow_mesh_renderer
+# Differentiable mesh renderer [PyTorch branch]
 Rastering algorithm to approximate the rendering of a 3D model silhouette in a fully differentiable way.
 
 ---
