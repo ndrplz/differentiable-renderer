@@ -23,7 +23,7 @@ def keep_top_n(meshes, top_n):
 
 
 class Rasterer(torch.nn.Module):
-    def __init__(self, meshes: list, resolution_px: tuple, resolution_mm: tuple, focal_len_mm: int,
+    def __init__(self, meshes: list, resolution_px: tuple, diagonal_mm: int, focal_len_mm: int,
                  max_triangles: int=1000):
         """
         Create a Rasterer object. The rendering output can be accessed through `image` attribute.
@@ -40,8 +40,8 @@ class Rasterer(torch.nn.Module):
         meshes = keep_top_n(meshes, top_n=max_triangles)
         self.meshes = torch.from_numpy(meshes).float()
 
+        self.diagonal_mm = diagonal_mm  # diagonal of the camera sensor in mm
         self.res_x_px, self.res_y_px = resolution_px       # image resolution in pixels
-        self.res_x_mm, self.res_y_mm = resolution_mm       # size of camera sensor in mm
         self.aspect_ratio = self.res_y_px / self.res_x_px  # vertical
 
         # Prepare the meshgrid once
@@ -51,7 +51,7 @@ class Rasterer(torch.nn.Module):
 
         # Store the calibration matrix
         K = calibration_matrix(resolution_px=(self.res_x_px, self.res_y_px),
-                               resolution_mm=(self.res_x_mm, self.res_y_mm),
+                               diagonal_mm=self.diagonal_mm,
                                focal_len_mm=focal_len_mm, skew=0)
         self.K = torch.from_numpy(K).float()
 

@@ -66,18 +66,19 @@ def project_in_2D(K, camera_pose, mesh, resolution_px):
     return torch.cat([coords_projected_2D_x_clip, coords_projected_2D_y_clip], dim=-1)
 
 
-def calibration_matrix(resolution_px, resolution_mm, focal_len_mm, skew=0.):
+def calibration_matrix(resolution_px, diagonal_mm, focal_len_mm, skew=0.):
     """
     Return calibration matrix K given camera information
+    Diagonal in mm of the camera sensor (ratio will match px_ratio)
     """
     # Camera intrinsics parameters
     resolution_x_px, resolution_y_px = resolution_px  # image resolution in pixels
-    resolution_x_mm, resolution_y_mm = resolution_mm  # size of camera sensor in mm
+    diagonal_px = np.sqrt(resolution_x_px ** 2 + resolution_y_px ** 2)
+
+    resolution_x_mm = resolution_x_px / diagonal_px * diagonal_mm
+    resolution_y_mm = resolution_y_px / diagonal_px * diagonal_mm
 
     skew = skew  # "skew param will be zero for most normal cameras" Hartley, Zisserman
-    focal_len_mm = focal_len_mm  # camera focal len in mm
-
-    assert (resolution_x_px / resolution_y_px == resolution_x_mm / resolution_y_mm)
 
     m_x = resolution_x_px / resolution_x_mm
     m_y = resolution_y_px / resolution_y_mm
