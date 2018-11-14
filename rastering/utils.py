@@ -1,3 +1,4 @@
+import torch
 import numpy as np
 import tensorflow as tf
 
@@ -33,38 +34,38 @@ def project_in_2D(K, camera_pose, mesh, resolution_px):
 
     # Invert the camera pose matrix to get the camera extrinsics
     # Due to the particular matrix geometry we can avoid raw inversion
-    Rc = tf.matrix_transpose(R)
+    Rc = R.t()
     Tc = -Rc @ T
-    RT = tf.concat([Rc, Tc], axis=-1)  # camera extrinsics
+    RT = torch.cat([Rc, Tc], dim=-1)   # camera extrinsics
 
     # Correct reference system of extrinsics matrix
     #   y is down: (to align to the actual pixel coordinates used in digital images)
     #   right-handed: positive z look-at direction
-    correction_factor = tf.constant(value=np.array([[1., 0., 0.],
-                                                    [0., -1., 0.],
-                                                    [0., 0., -1.]]), dtype=tf.float32)
-    RT = correction_factor @ RT
+    correction_factor = torch.from_numpy(np.asarray([[1., 0., 0.], [0., -1., 0.], [0., 0., -1.]],
+                                                    dtype=np.float32))
+
+    RT = correction_factor @ RT.float()
 
     # Compose whole camera projection matrix (3x4)
     P = K @ RT
 
-    mesh_flat = tf.reshape(mesh, shape=(-1, 3))
-    len_mesh_flat = tf.shape(mesh_flat)[0]
+    mesh_flat = mesh.view(-1, 3)
+    len_mesh_flat = mesh_flat.size(0)
+
     # Create constant tensor to store 3D model coordinates
-    coords_3d_h = tf.concat([mesh_flat, tf.ones(shape=(len_mesh_flat, 1), dtype=tf.float32)], axis=-1)  # n_triangles, 4
-    coords_3d_h = tf.transpose(coords_3d_h, perm=[1, 0])  # 4, n_triangles
+    ones = torch.ones(len_mesh_flat, 1)
+    coords_3d_h = torch.cat([mesh_flat, ones], dim=-1)  # n_triangles, 4
+    coords_3d_h = coords_3d_h.t()                       # 4, n_triangles
 
     # Project 3D vertices into 2D
-    coords_projected_2D_h = tf.transpose(P @ coords_3d_h, perm=[1, 0])  # n_triangles, 3
-    coords_projected_2D = coords_projected_2D_h[:, :2] / (coords_projected_2D_h[:, 2:3] + 1e-8)
+    coords_projected_2D_h = (P @ coords_3d_h).t()         # n_triangles, 3
+    coords_projected_2D = coords_projected_2D_h[:, :2] / (coords_projected_2D_h[:, 2:] + 1e-8)
 
     # Clip indexes in image range
-    coords_projected_2D_x_clip = tf.clip_by_value(coords_projected_2D[:, 0:0 + 1],
-                                                  clip_value_min=-1, clip_value_max=resolution_x_px)
-    coords_projected_2D_y_clip = tf.clip_by_value(coords_projected_2D[:, 1:1 + 1],
-                                                  clip_value_min=-1, clip_value_max=resolution_y_px)
-
-    return tf.concat([coords_projected_2D_x_clip, coords_projected_2D_y_clip], axis=-1)
+    # Todo why off by one pixel?
+    coords_projected_2D_x_clip = torch.clamp(coords_projected_2D[:, 0: 1], -1, resolution_x_px)
+    coords_projected_2D_y_clip = torch.clamp(coords_projected_2D[:, 1: 2], -1, resolution_y_px)
+    return torch.cat([coords_projected_2D_x_clip, coords_projected_2D_y_clip], dim=-1)
 
 
 def calibration_matrix(resolution_px, resolution_mm, focal_len_mm, skew=0.):

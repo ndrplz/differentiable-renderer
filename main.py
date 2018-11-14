@@ -1,14 +1,11 @@
 import glob
-import random
 
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
-
+import torch
 from rastering import Rasterer
 from rastering import RotoTranslation
 from rastering import Vector
-
 
 if __name__ == '__main__':
 
@@ -21,25 +18,19 @@ if __name__ == '__main__':
     mesh_dataset = [np.load(mesh_path) for mesh_path in glob.glob('data/*/*.npy')]
 
     camera_intrinsics = {'resolution_px': (128, 128), 'resolution_mm': (32, 32), 'focal_len_mm': 35}
-    renderer = Rasterer(meshes=mesh_dataset,
-                        pl_camera_pose=tf.placeholder(dtype=tf.float32, shape=(None, 4, 4)),
-                        pl_model_idx=tf.placeholder(dtype=tf.int32, shape=(None,)),
-                        max_triangles=3000, **camera_intrinsics)
+    renderer = Rasterer(meshes=mesh_dataset, max_triangles=3000, **camera_intrinsics)
 
     # Sample a bunch of models from the mesh dataset. There will be rendered in the same batch.
-    n_meshes = 3
-    model_idxs = np.asarray(random.sample(range(len(mesh_dataset)), k=n_meshes))
+    n_mesh_to_render = 3
+    model_idxs = np.random.choice(np.arange(len(mesh_dataset)), size=n_mesh_to_render)
 
     # Load camera pose. In this case it is the same for all renderings.
     camera_matrix = camera_pose.matrix
-    camera_matrices = np.tile(camera_matrix[None, ...], [n_meshes, 1, 1])
+    camera_matrices = np.tile(camera_matrix[None, ...], [n_mesh_to_render, 1, 1])
 
-    with tf.Session() as tf_session:
-        tf_session.run(tf.variables_initializer(tf.global_variables()))
+    render_output = renderer(torch.from_numpy(model_idxs),
+                             torch.from_numpy(camera_matrices))
 
-        render_output = tf_session.run(renderer.image, feed_dict={renderer.pl_model_idx: model_idxs,
-                                                                  renderer.pl_camera_pose: camera_matrices})
-
-        for b in range(n_meshes):
-            plt.imshow(render_output[b])
-            plt.waitforbuttonpress()
+    for b in range(n_mesh_to_render):
+        plt.imshow(render_output[b].to('cpu').numpy())
+        plt.waitforbuttonpress()
