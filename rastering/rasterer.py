@@ -45,7 +45,7 @@ class Rasterer(torch.nn.Module):
         self.aspect_ratio = self.res_y_px / self.res_x_px  # vertical
 
         # Prepare the meshgrid once
-        xx, yy = np.mgrid[0: self.res_x_px, 0: self.res_y_px]
+        yy, xx = np.mgrid[0: self.res_y_px, 0: self.res_x_px]
         meshgrid = np.concatenate((xx[..., None], yy[..., None]), axis=-1)
         self.meshgrid_flat = torch.from_numpy(meshgrid.reshape((1, -1, 2)))
 

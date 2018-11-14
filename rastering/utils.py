@@ -60,8 +60,7 @@ def project_in_2D(K, camera_pose, mesh, resolution_px):
     coords_projected_2D_h = (P @ coords_3d_h).t()         # n_triangles, 3
     coords_projected_2D = coords_projected_2D_h[:, :2] / (coords_projected_2D_h[:, 2:] + 1e-8)
 
-    # Clip indexes in image range
-    # Todo why off by one pixel?
+    # Clip indexes in image range (off by 1 pixel each side to avoid edge issues)
     coords_projected_2D_x_clip = torch.clamp(coords_projected_2D[:, 0: 1], -1, resolution_x_px)
     coords_projected_2D_y_clip = torch.clamp(coords_projected_2D[:, 1: 2], -1, resolution_y_px)
     return torch.cat([coords_projected_2D_x_clip, coords_projected_2D_y_clip], dim=-1)

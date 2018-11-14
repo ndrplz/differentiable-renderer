@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # Toy dataset containing 5 random car meshes from Shapenetcore.
     mesh_dataset = [np.load(mesh_path) for mesh_path in glob.glob('data/*/*.npy')]
 
-    camera_intrinsics = {'resolution_px': (32, 32), 'resolution_mm': (32, 32), 'focal_len_mm': 35}
+    camera_intrinsics = {'resolution_px': (128, 128), 'resolution_mm': (32, 32), 'focal_len_mm': 35}
     renderer = Rasterer(meshes=mesh_dataset, max_triangles=3000, **camera_intrinsics)
 
     # Sample a bunch of models from the mesh dataset. There will be rendered in the same batch.
