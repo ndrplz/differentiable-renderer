@@ -2,10 +2,7 @@
 Rasterer class implement a differentiable rasterer.
 """
 import numpy as np
-import tensorflow as tf
 import torch
-from torch.autograd import Variable
-import torch.nn.functional as F
 from rastering.utils import calibration_matrix
 from rastering.utils import project_in_2D
 
@@ -77,7 +74,7 @@ class Rasterer(torch.nn.Module):
             _min, _ = torch.min(inside_scalar_b, dim=1)
             _max, _ = torch.max(inside_scalar_b, dim=1)
             norm_update = (inside_scalar_b - _min.unsqueeze(-1)) / (_max - _min + 1e-08).unsqueeze(-1)
-            norm_update = F.tanh(norm_update)
+            norm_update = torch.tanh(norm_update)
 
             image = torch.sum(norm_update, dim=0).view(self.res_y_px, self.res_x_px)
             outputs.append(image)
