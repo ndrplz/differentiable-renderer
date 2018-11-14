@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-import tensorflow as tf
 
 
 def project_in_2D(K, camera_pose, mesh, resolution_px):
