@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 
 def project_in_2D(K, camera_pose, mesh, resolution_px):
@@ -41,7 +41,7 @@ def project_in_2D(K, camera_pose, mesh, resolution_px):
     #   y is down: (to align to the actual pixel coordinates used in digital images)
     #   right-handed: positive z look-at direction
     correction_factor = torch.from_numpy(np.asarray([[1., 0., 0.], [0., -1., 0.], [0., 0., -1.]],
-                                                    dtype=np.float32))
+                                                    dtype=np.float32)).to(camera_pose.device)
 
     RT = correction_factor @ RT.float()
 
@@ -52,7 +52,7 @@ def project_in_2D(K, camera_pose, mesh, resolution_px):
     len_mesh_flat = mesh_flat.size(0)
 
     # Create constant tensor to store 3D model coordinates
-    ones = torch.ones(len_mesh_flat, 1)
+    ones = torch.ones(len_mesh_flat, 1).to(camera_pose.device)
     coords_3d_h = torch.cat([mesh_flat, ones], dim=-1)  # n_triangles, 4
     coords_3d_h = coords_3d_h.t()                       # 4, n_triangles
 

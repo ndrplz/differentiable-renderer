@@ -3,6 +3,7 @@ Rasterer class implement a differentiable rasterer.
 """
 import numpy as np
 import torch
+
 from rastering.utils import calibration_matrix
 from rastering.utils import project_in_2D
 
@@ -30,7 +31,7 @@ class Rasterer(torch.nn.Module):
          
         :param meshes: List of meshes. Each mesh is an array of shape (n_triangles, 3, 3).
         :param resolution_px: Camera resolution in pixel.
-        :param resolution_mm: Camera resolution in millimeters.
+        :param diagonal_mm: Sensor diagonal in mm.
         :param focal_len_mm: Camera focal length in millimeters.
         :param max_triangles: For computational reasons, all meshes are pre-processed to have
                               a maximum number of triangles `max_triangles`.
@@ -38,7 +39,7 @@ class Rasterer(torch.nn.Module):
         super(Rasterer, self).__init__()
 
         meshes = keep_top_n(meshes, top_n=max_triangles)
-        self.meshes = torch.from_numpy(meshes).float()
+        self.register_buffer('meshes', torch.from_numpy(meshes).float())
 
         self.diagonal_mm = diagonal_mm  # diagonal of the camera sensor in mm
         self.res_x_px, self.res_y_px = resolution_px       # image resolution in pixels
@@ -47,13 +48,13 @@ class Rasterer(torch.nn.Module):
         # Prepare the meshgrid once
         yy, xx = np.mgrid[0: self.res_y_px, 0: self.res_x_px]
         meshgrid = np.concatenate((xx[..., None], yy[..., None]), axis=-1)
-        self.meshgrid_flat = torch.from_numpy(meshgrid.reshape((1, -1, 2)))
+        self.register_buffer('meshgrid_flat', torch.from_numpy(meshgrid.reshape((1, -1, 2))))
 
         # Store the calibration matrix
         K = calibration_matrix(resolution_px=(self.res_x_px, self.res_y_px),
                                diagonal_mm=self.diagonal_mm,
                                focal_len_mm=focal_len_mm, skew=0)
-        self.K = torch.from_numpy(K).float()
+        self.register_buffer('K', torch.from_numpy(K).float())
 
     def __call__(self, *args, **kwargs):
         return super(Rasterer, self).__call__(*args, **kwargs)
@@ -107,8 +108,4 @@ class Rasterer(torch.nn.Module):
         t_3 = (edge_2[:, 0, None] * C2[:, :, 1] - edge_2[:, 1, None] * C2[:, :, 0]) * N
 
         # Approximate check
-        lower_bound = torch.Tensor([0])
-        t_1_clip = torch.max(t_1, lower_bound)
-        t_2_clip = torch.max(t_2, lower_bound)
-        t_3_clip = torch.max(t_3, lower_bound)
-        return t_1_clip * t_2_clip * t_3_clip
+        return torch.clamp(t_1, min=0.) * torch.clamp(t_2, min=0.) * torch.clamp(t_3, min=0.)
