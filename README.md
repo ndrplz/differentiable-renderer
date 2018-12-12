@@ -5,7 +5,7 @@ Rastering algorithm to approximate the rendering of a 3D model silhouette in a f
 
 ---
 
-This code accompanies the paper:
+This code accompanies the **[paper](https://iris.unimore.it/retrieve/handle/11380/1167726/205862/palazzi_eccvw.pdf)**:
 > "End-to-end 6-DoF Object Pose Estimation through Differentiable Rasterization"
 
 > Andrea Palazzi, Luca Bergamini, Simone Calderara, Rita Cucchiara
