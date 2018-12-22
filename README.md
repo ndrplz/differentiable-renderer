@@ -10,7 +10,7 @@ This code accompanies the **[paper](https://iris.unimore.it/retrieve/handle/1138
 
 > Andrea Palazzi, Luca Bergamini, Simone Calderara, Rita Cucchiara
 
-to appear in "*Second Workshop on 3D Reconstruction Meets Semantics (3DRMS)*" at ECCVW 2018.
+appeared in "*Second Workshop on 3D Reconstruction Meets Semantics (3DRMS)*" at ECCVW 2018.
 
 
 <table style="width:100%">
@@ -63,4 +63,15 @@ To change its position, simply use its setters:
 * `alpha_x`, `alpha_y`, `alpha_z` to change the rotation angle around respective axes
 * `t_x`, `t_y`, `t_z` to change the translation along respective axes
 
+## License
+
+This code is released under MIT license. In case you use this code in your academic work, please cite the following paper:
+```
+@inproceedings{palazzi2018end,
+  title={End-to-end 6-DoF Object Pose Estimation through Differentiable Rasterization},
+  author={Palazzi, Andrea and Bergamini, Luca and Calderara, Simone and Cucchiara, Rita},
+  booktitle={Second Workshop on 3D Reconstruction Meets Semantics (3DRMS)},
+  year={2018}
+}
+```
 
